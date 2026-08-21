@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth.js";
+import { eventsRouter } from "./routes/events.js";
+import { registrationsRouter } from "./routes/registrations.js";
 
 export function createApp() {
   const app = express();
@@ -10,6 +12,8 @@ export function createApp() {
 
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/auth", authRouter);
+  app.use("/api/events", eventsRouter);
+  app.use("/api", registrationsRouter);
 
   app.use((req, res) => {
     res.status(404).json({ error: `No route: ${req.method} ${req.path}` });
