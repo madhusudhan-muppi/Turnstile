@@ -5,6 +5,7 @@ import { eventsRouter } from "./routes/events.js";
 import { registrationsRouter } from "./routes/registrations.js";
 import { checkinRouter } from "./routes/checkin.js";
 import { exportRouter } from "./routes/export.js";
+import { insightsRouter } from "./routes/insights.js";
 
 export function createApp() {
   const app = express();
@@ -18,6 +19,7 @@ export function createApp() {
   app.use("/api", registrationsRouter);
   app.use("/api", checkinRouter);
   app.use("/api", exportRouter);
+  app.use("/api", insightsRouter);
 
   app.use((req, res) => {
     res.status(404).json({ error: `No route: ${req.method} ${req.path}` });
