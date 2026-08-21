@@ -7,4 +7,5 @@ build/
 *.db-wal
 *.log
 .DS_Store
-scripts/proof-logs/*.log
+scripts/proof-logs/run-*.log
+!scripts/proof-logs/sample-passing-run.log

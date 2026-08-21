@@ -1,0 +1,24 @@
+=== Turnstile concurrency proof — 2026-08-21T10:07:02.492Z ===
+Backends: http://localhost:4001, http://localhost:4002 (same DB file)
+
+Created event ea60aa2d-b1a6-4861-8af8-2dfd9ec5028e with capacity=50
+
+Signing up 150 attendees...
+
+Firing 150 concurrent registration requests (capacity is 50) across 2 server processes...
+  Completed in 263ms
+  Successful registrations: 50
+  Rejected as EVENT_FULL:   100
+  Unexpected outcomes:      0
+  PASS: exactly 50 succeeded, DB shows registeredCount=50
+
+Fetching one successful registration's QR payload for the duplicate-checkin proof...
+Firing 120 concurrent check-in requests at the SAME QR code across 2 server processes...
+  Completed in 180ms
+  Successful check-ins:         1
+  Rejected as ALREADY_CHECKED_IN: 119
+  Unexpected outcomes:           0
+  Sample rejection message: "Attendee 0 is already checked in (at 15:37)"
+  PASS: exactly 1 of 120 concurrent scans of the same QR succeeded
+
+=== ALL CHECKS PASSED ===
