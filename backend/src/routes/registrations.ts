@@ -33,6 +33,9 @@ async function serialize(reg: RegistrationRow, includeQr: boolean) {
     qrDataUrl: includeQr && reg.status === "registered"
       ? await qrToDataUrl(encodeQrPayload(reg.id, reg.qr_token))
       : null,
+    qrPayload: includeQr && reg.status === "registered"
+      ? encodeQrPayload(reg.id, reg.qr_token)
+      : null,
   };
 }
 

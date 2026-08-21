@@ -3,6 +3,7 @@ import cors from "cors";
 import { authRouter } from "./routes/auth.js";
 import { eventsRouter } from "./routes/events.js";
 import { registrationsRouter } from "./routes/registrations.js";
+import { checkinRouter } from "./routes/checkin.js";
 
 export function createApp() {
   const app = express();
@@ -14,6 +15,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/events", eventsRouter);
   app.use("/api", registrationsRouter);
+  app.use("/api", checkinRouter);
 
   app.use((req, res) => {
     res.status(404).json({ error: `No route: ${req.method} ${req.path}` });
