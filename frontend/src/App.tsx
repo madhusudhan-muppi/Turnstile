@@ -5,6 +5,7 @@ import { NavBar } from "./components/NavBar";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { EventsListPage } from "./pages/EventsListPage";
+import { CreateEventPage } from "./pages/CreateEventPage";
 
 export default function App() {
   return (
@@ -20,6 +21,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <EventsListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/events/new"
+              element={
+                <ProtectedRoute roles={["organizer"]}>
+                  <CreateEventPage />
                 </ProtectedRoute>
               }
             />
