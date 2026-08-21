@@ -8,6 +8,7 @@ import { EventsListPage } from "./pages/EventsListPage";
 import { CreateEventPage } from "./pages/CreateEventPage";
 import { MyRegistrationsPage } from "./pages/MyRegistrationsPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { ScannerPage } from "./pages/ScannerPage";
 
 export default function App() {
   return (
@@ -47,6 +48,14 @@ export default function App() {
               element={
                 <ProtectedRoute roles={["organizer"]}>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scan"
+              element={
+                <ProtectedRoute roles={["organizer"]}>
+                  <ScannerPage />
                 </ProtectedRoute>
               }
             />
