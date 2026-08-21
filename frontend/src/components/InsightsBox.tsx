@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "../lib/api";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 interface EventStats {
   registeredCount: number;
@@ -49,65 +50,95 @@ export function InsightsBox({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="card insights-box">
-      <h2 style={{ margin: 0 }}>Ask about this event</h2>
-      <form onSubmit={onSubmit} style={{ display: "flex", gap: "0.5rem" }}>
+    <section className="bg-primary text-on-primary p-space-md shadow-md flex flex-col gap-space-md h-full">
+      <div className="flex items-center gap-space-sm font-label-md text-label-md text-primary-fixed">
+        <MaterialIcon name="auto_awesome" className="text-[18px]" />
+        AI ANALYSIS
+      </div>
+
+      <form onSubmit={onSubmit} className="flex gap-space-sm">
         <input
-          style={{ flex: 1 }}
-          placeholder="e.g. How many people have checked in so far?"
+          className="flex-1 bg-on-primary/10 border border-on-primary/20 px-space-sm py-space-xs text-on-primary placeholder:text-on-primary/50 outline-none focus:border-primary-fixed"
+          placeholder="Ask about this event…"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
         />
-        <button type="submit" disabled={loading || !question.trim()}>
-          {loading ? "Asking…" : "Ask"}
+        <button
+          type="submit"
+          disabled={loading || !question.trim()}
+          className="px-space-md bg-primary-fixed text-on-primary-fixed font-label-md text-label-md uppercase disabled:opacity-50"
+        >
+          {loading ? "…" : "Ask"}
         </button>
       </form>
 
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <div className="flex gap-space-xs flex-wrap">
         {SUGGESTIONS.map((s) => (
           <button
             key={s}
             type="button"
-            className="secondary"
             disabled={loading}
             onClick={() => {
               setQuestion(s);
               ask(s);
             }}
+            className="font-label-md text-label-md text-on-primary/70 hover:text-on-primary underline underline-offset-4 disabled:opacity-50"
           >
             {s}
           </button>
         ))}
       </div>
 
-      {loading && <p className="muted">Thinking…</p>}
-      {error && <p className="error-text">{error}</p>}
+      <div className="flex-1 flex flex-col justify-center min-h-[120px]">
+        {loading && (
+          <div className="flex flex-col items-center gap-space-sm animate-pulse">
+            <MaterialIcon name="memory" className="text-display-lg opacity-50" />
+            <span className="font-code-md text-code-md text-on-primary/70">Processing telemetry…</span>
+          </div>
+        )}
 
-      {result && !loading && (
-        <div className="answer">
-          {result.aiAvailable ? (
-            result.answer
-          ) : (
-            <>
-              <p style={{ marginTop: 0 }}>
-                AI insights are unavailable right now ({result.error}). Here are the raw numbers:
-              </p>
-              <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
-                <li>Registered: {result.stats.registeredCount}</li>
-                <li>Checked in: {result.stats.checkedInCount}</li>
-                <li>No-show rate: {result.stats.noShowPercent}%</li>
-                <li>Spots left: {result.stats.spotsLeft}</li>
-                <li>
-                  Peak check-in minute:{" "}
-                  {result.stats.peakCheckinMinute
-                    ? new Date(result.stats.peakCheckinMinute).toLocaleTimeString()
-                    : "n/a"}
-                </li>
-              </ul>
-            </>
-          )}
-        </div>
-      )}
-    </div>
+        {error && (
+          <div className="flex flex-col items-center gap-space-sm text-center">
+            <MaterialIcon name="cloud_off" className="text-[32px] text-error-container" />
+            <p className="font-code-md text-code-md text-on-primary">{error}</p>
+          </div>
+        )}
+
+        {result && !loading && (
+          <div className="flex flex-col gap-space-sm">
+            {result.aiAvailable ? (
+              <p className="font-body-md text-body-md leading-relaxed">{result.answer}</p>
+            ) : (
+              <>
+                <p className="font-body-md text-body-md leading-relaxed">
+                  AI insights are unavailable right now ({result.error}). Here are the raw numbers:
+                </p>
+                <ul className="font-code-md text-code-md flex flex-col gap-unit">
+                  <li>Registered: {result.stats.registeredCount}</li>
+                  <li>Checked in: {result.stats.checkedInCount}</li>
+                  <li>No-show rate: {result.stats.noShowPercent}%</li>
+                  <li>Spots left: {result.stats.spotsLeft}</li>
+                  <li>
+                    Peak check-in minute:{" "}
+                    {result.stats.peakCheckinMinute
+                      ? new Date(result.stats.peakCheckinMinute).toLocaleTimeString()
+                      : "n/a"}
+                  </li>
+                </ul>
+              </>
+            )}
+            <div className="font-code-md text-code-md text-on-primary/70 border-t border-on-primary/20 pt-space-sm">
+              Generated: {new Date().toLocaleTimeString()}
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && !result && (
+          <p className="font-code-md text-code-md text-on-primary/50 text-center">
+            Ask a question above to get started.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }

@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import { api, ApiError, getToken } from "../lib/api";
 import { getSocket } from "../lib/socket";
 import { InsightsBox } from "../components/InsightsBox";
+import { AppShell } from "../components/layout/AppShell";
+import { StatCard } from "../ui/StatCard";
+import { MaterialIcon } from "../ui/MaterialIcon";
 
 interface EventDetail {
   id: string;
@@ -107,74 +110,114 @@ export function DashboardPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (error) return <p className="error-text">{error}</p>;
-  if (!event) return <p className="page-status">Loading dashboard…</p>;
+  if (error) return <AppShell><p className="font-body-md text-body-md text-error">{error}</p></AppShell>;
+  if (!event) return <AppShell><p className="font-body-lg text-body-lg text-on-surface-variant">Loading dashboard…</p></AppShell>;
+
+  const checkedInPercent = event.registeredCount > 0 ? (event.checkedInCount / event.registeredCount) * 100 : 0;
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1 style={{ marginBottom: "0.25rem" }}>{event.name}</h1>
-          <span className="muted">{new Date(event.date).toLocaleString()}</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <span className={`pill ${connected ? "online" : "offline"}`}>
-            {connected ? "● Live" : "○ Reconnecting…"}
-          </span>
-          <button className="secondary" onClick={exportCsv}>
-            Export CSV
-          </button>
-        </div>
-      </div>
+    <AppShell>
+      <div className="flex flex-col gap-space-lg max-w-[1140px] mx-auto w-full">
+        <section className="flex flex-col gap-space-md">
+          <div className="flex justify-between items-end flex-wrap gap-space-md">
+            <div>
+              <h1 className="font-display-lg text-display-lg text-on-surface">{event.name}</h1>
+              <div className="flex items-center gap-space-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-unit">
+                <span className={`w-2 h-2 rounded-full ${connected ? "bg-secondary-fixed animate-pulse" : "bg-error"}`} />
+                {connected ? "Live Telemetry Active" : "Reconnecting…"}
+              </div>
+              <div className="font-body-md text-body-md text-on-surface-variant mt-unit">
+                {new Date(event.date).toLocaleString()}
+              </div>
+            </div>
+            <button
+              className="bg-primary text-on-primary px-space-md py-space-sm font-label-md text-label-md flex items-center gap-space-sm hover:bg-primary-container transition-colors shadow-sm"
+              onClick={exportCsv}
+            >
+              <MaterialIcon name="download" className="text-[18px]" />
+              EXPORT CSV
+            </button>
+          </div>
 
-      <div className="stat-row">
-        <div className="stat-tile">
-          <div className="value">{event.registeredCount}</div>
-          <div className="label">Registered / {event.capacity} capacity</div>
-        </div>
-        <div className="stat-tile">
-          <div className="value">{event.checkedInCount}</div>
-          <div className="label">Checked in</div>
-        </div>
-        <div className="stat-tile">
-          <div className="value">{event.spotsLeft}</div>
-          <div className="label">Spots left</div>
-        </div>
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md mt-space-sm">
+            <StatCard label="Registered" value={`${event.registeredCount}/${event.capacity}`} icon="group" accent="primary" />
+            <StatCard
+              label="Checked In"
+              value={event.checkedInCount}
+              icon="check_circle"
+              accent="secondary"
+              progressPercent={checkedInPercent}
+            />
+            <StatCard label="Spots Left" value={event.spotsLeft} icon="pending" accent="error" />
+          </div>
+        </section>
 
-      <InsightsBox eventId={event.id} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+          <div className="lg:col-span-1">
+            <InsightsBox eventId={event.id} />
+          </div>
 
-      {liveFeed.length > 0 && (
-        <div className="card" style={{ marginTop: "1.5rem" }}>
-          <h2 style={{ marginTop: 0 }}>Just checked in</h2>
-          <ul className="checkin-list">
-            {liveFeed.map((c) => (
-              <li key={c.registrationId}>
-                <span>{c.name}</span>
-                <time>{new Date(c.checkedInAt).toLocaleTimeString()}</time>
+          <div className="lg:col-span-2 flex flex-col">
+            <section className="bg-surface-container shadow-sm flex-1 flex flex-col overflow-hidden min-h-[400px]">
+              <div className="p-space-md border-b border-surface flex justify-between items-center bg-surface-container-high">
+                <h2 className="font-headline-md text-headline-md text-on-surface flex items-center gap-space-sm">
+                  <MaterialIcon name="radar" />
+                  Live Scan Stream
+                </h2>
+              </div>
+              <div className="grid grid-cols-12 gap-space-sm px-space-md py-space-sm bg-surface-container font-label-md text-label-md text-on-surface-variant border-b border-surface">
+                <div className="col-span-4">TIMESTAMP</div>
+                <div className="col-span-6">ATTENDEE</div>
+                <div className="col-span-2 text-right">STATUS</div>
+              </div>
+              <div className="flex-1 overflow-y-auto bg-surface">
+                {liveFeed.length === 0 && (
+                  <p className="p-space-md font-body-md text-body-md text-on-surface-variant">
+                    Waiting for check-ins…
+                  </p>
+                )}
+                {liveFeed.map((c) => (
+                  <div
+                    key={c.registrationId}
+                    className="grid grid-cols-12 gap-space-sm px-space-md py-space-sm border-b border-surface-container items-center hover:bg-surface-container-lowest transition-colors font-code-md text-code-md text-on-surface"
+                  >
+                    <div className="col-span-4 text-on-surface-variant">{new Date(c.checkedInAt).toLocaleTimeString()}</div>
+                    <div className="col-span-6 flex items-center gap-space-sm truncate">
+                      <div className="w-6 h-6 bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                        <MaterialIcon name="person" className="text-[14px]" />
+                      </div>
+                      {c.name}
+                    </div>
+                    <div className="col-span-2 flex justify-end">
+                      <span className="bg-secondary text-on-secondary px-space-sm py-unit font-label-md text-label-md">VALID</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div className="bg-surface-container-lowest border border-outline-variant p-space-lg">
+          <h2 className="font-headline-md text-headline-md text-on-surface mb-space-md">Attendees</h2>
+          <ul className="flex flex-col divide-y divide-outline-variant max-h-[420px] overflow-y-auto">
+            {registrations.map((r) => (
+              <li key={r.id} className="flex justify-between items-center py-space-sm font-body-md text-body-md">
+                <span className="text-on-surface">
+                  {r.attendee_name} <span className="text-on-surface-variant">({r.attendee_email})</span>
+                </span>
+                {r.status === "checked_in" ? (
+                  <span className="text-on-surface-variant font-code-md text-code-md">
+                    {r.checked_in_at && new Date(r.checked_in_at).toLocaleTimeString()}
+                  </span>
+                ) : (
+                  <span className="text-on-surface-variant">not checked in</span>
+                )}
               </li>
             ))}
           </ul>
         </div>
-      )}
-
-      <div className="card" style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ marginTop: 0 }}>Attendees</h2>
-        <ul className="checkin-list">
-          {registrations.map((r) => (
-            <li key={r.id}>
-              <span>
-                {r.attendee_name} <span className="muted">({r.attendee_email})</span>
-              </span>
-              {r.status === "checked_in" ? (
-                <time>{r.checked_in_at && new Date(r.checked_in_at).toLocaleTimeString()}</time>
-              ) : (
-                <span className="muted">not checked in</span>
-              )}
-            </li>
-          ))}
-        </ul>
       </div>
-    </div>
+    </AppShell>
   );
 }

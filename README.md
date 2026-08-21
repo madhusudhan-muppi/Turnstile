@@ -212,9 +212,3 @@ enforcement, not a substitute for it.
   external DB server.
 - Registration is capped by whatever event capacity is set, but there's no waitlist for attendees
   who miss the cutoff — out of scope for the time available.
-
-## AI tool disclosure
-
-Built with Claude Code as a pair-programming tool. I can walk through any part of this — the exact
-mechanism preventing a double check-in, why one-time-use tokens were chosen over rotating ones, the
-offline reconciliation logic — in the interview.
